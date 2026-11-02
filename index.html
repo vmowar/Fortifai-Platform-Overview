@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>fortifai - the continuous value assurance platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #0D1520;
+    --navy-2: #2E5A8A;
+    --blue:   #2E5A8A;
+    --ink:    #1E293B;
+    --muted:  #475569;
+    --light:  #64748B;
+    --faint:  #94A3B8;
+    --border: #CBD5E1;
+    --page-bg:#CBD5E1;
+    --white:  #FFFFFF;
+    --bg:     #F8FAFC;
+    /* flat pastel fills */
+    --blue-f: #E6F1FB; --blue-s: #185FA5; --blue-t: #0C447C;
+    --teal-f: #E1F5EE; --teal-s: #0F6E56; --teal-t: #085041;
+    --purp-f: #EEEDFE; --purp-s: #534AB7; --purp-t: #3C3489;
+    --cor-f:  #FAECE7; --cor-s:  #993C1D; --cor-t:  #712B13;
+    --gray-f: #F1EFE8; --gray-s: #5F5E5A; --gray-t: #2C2C2A;
+    --amb-f:  #FAEEDA; --amb-s:  #854F0B; --amb-t:  #633806;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--ink);
+    background: var(--page-bg);
+    line-height: 1.38;
+    font-size: 11px;
+    padding: 20px 0 60px;
+  }
+
+  .print-dock {
+    position: fixed;
+    bottom: 18px;
+    right: 22px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--navy);
+    padding: 8px 14px;
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(13,21,32,0.28);
+  }
+  .print-dock span { color: #CBD5E1; font-size: 11px; }
+  .print-btn {
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* Screen preview container */
+  .page {
+    width: 194mm;
+    margin: 0 auto 22px;
+    background: var(--white);
+    box-shadow: 0 8px 28px rgba(15,23,42,0.14);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  /* Header Banner */
+  .header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 14px 22px 12px;
+    border-bottom: 3px solid var(--blue);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .wordmark { font-weight: 600; font-size: 19px; color: var(--white); letter-spacing: -0.01em; }
+  .pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #93C5FD;
+    background: rgba(46,90,138,0.4);
+    border: 1px solid rgba(147,197,253,0.35);
+    padding: 2px 7px;
+    border-radius: 3px;
+  }
+  .meta-right {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px;
+    color: #94A3B8;
+    text-align: right;
+  }
+  .header h1 {
+    font-size: 15.5px;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 2px;
+  }
+  .header p {
+    font-size: 10.5px;
+    color: #CBD5E1;
+  }
+
+  /* Main Body */
+  .content {
+    padding: 12px 22px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sec-title {
+    font-size: 9.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--blue);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 3px;
+    margin-bottom: 6px;
+  }
+
+  .lead {
+    font-size: 10.4px;
+    color: var(--ink);
+    line-height: 1.44;
+    background: var(--bg);
+    border-left: 3px solid var(--blue);
+    padding: 7px 11px;
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 7px;
+  }
+
+  /* Grids */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 8px 10px;
+    background: var(--white);
+  }
+  .card.soft-blue { background: var(--blue-f); border-color: #93C5FD; }
+  .card.soft-teal { background: var(--teal-f); border-color: #5EEAD4; }
+  .card.soft-purp { background: var(--purp-f); border-color: #C4B5FD; }
+
+  .card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--blue-s);
+    margin-bottom: 2px;
+    display: block;
+  }
+  .card h3 {
+    font-size: 10.8px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 2px;
+  }
+  .card p {
+    font-size: 9.8px;
+    color: var(--muted);
+    line-height: 1.36;
+  }
+
+  /* Control Tower Box (Page 1) */
+  .tower-box {
+    background: var(--navy);
+    color: var(--white);
+    border-radius: 6px;
+    padding: 10px 12px;
+    border: 1px solid var(--blue);
+  }
+  .tower-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.14);
+    padding-bottom: 5px;
+    margin-bottom: 6px;
+  }
+  .tower-top h3 {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--white);
+  }
+  .tower-top span {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.2px;
+    color: #93C5FD;
+    background: rgba(46,90,138,0.45);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .tower-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+  }
+  .t-kpi {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 4px;
+    padding: 6px 8px;
+  }
+  .t-kpi .lbl {
+    font-family: 'DM Mono', monospace;
+    font-size: 7.8px;
+    text-transform: uppercase;
+    color: #93C5FD;
+    margin-bottom: 1px;
+  }
+  .t-kpi .val {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--white);
+  }
+  .t-kpi .sub {
+    font-size: 8.8px;
+    color: #CBD5E1;
+  }
+
+  /* Page 2: Functional Agent Suite Cards (No side-by-side title squeezing) */
+  .suite-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .suite-head {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .suite-head.p2p { background: var(--blue-f); }
+  .suite-head.fin { background: var(--teal-f); }
+  .suite-head.o2c { background: var(--purp-f); }
+  .suite-head.aud { background: var(--cor-f); }
+
+  .suite-head h3 {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 1px;
+  }
+  .suite-owner {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    color: var(--muted);
+    display: block;
+  }
+  .suite-body {
+    padding: 7px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+  }
+  .agent-row {
+    border-bottom: 1px dashed #E2E8F0;
+    padding-bottom: 4px;
+  }
+  .agent-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .agent-title {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 1px;
+  }
+  .agent-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px;
+    font-weight: 500;
+    color: var(--blue-t);
+    background: var(--blue-f);
+    border: 1px solid rgba(24,95,165,0.28);
+    padding: 0.5px 5px;
+    border-radius: 3px;
+  }
+  .agent-sub {
+    font-size: 9.8px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .agent-desc {
+    font-size: 9.2px;
+    color: var(--muted);
+    line-height: 1.32;
+  }
+  .suite-outcome {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 5px 10px;
+    font-size: 9px;
+    color: var(--ink);
+  }
+  .suite-outcome strong {
+    color: var(--blue);
+    font-weight: 600;
+  }
+
+  /* Copilot Banner (Page 2) */
+  .copilot-strip {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--navy-2);
+    border-radius: 5px;
+    padding: 7px 11px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .copilot-strip h4 {
+    font-size: 10.4px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 1px;
+  }
+  .copilot-strip p {
+    font-size: 9.3px;
+    color: var(--muted);
+    line-height: 1.32;
+  }
+  .query-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 8.5px;
+    color: var(--blue-t);
+    background: var(--blue-f);
+    border: 1px solid rgba(24,95,165,0.28);
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  /* Page 3 Stat Cards & Timeline */
+  .stat-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-top: 2.5px solid var(--blue);
+    border-radius: 5px;
+    padding: 6px 8px;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--navy);
+  }
+  .stat-lbl {
+    font-size: 9.4px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .stat-sub {
+    font-size: 8.5px;
+    color: var(--light);
+  }
+
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+  }
+  .step-box {
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 6px 8px;
+    background: var(--white);
+  }
+  .step-wk {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+  .step-box h4 {
+    font-size: 9.8px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 1px;
+  }
+  .step-box p {
+    font-size: 8.9px;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  /* SVG Diagram Wrapper */
+  .diagram-wrap { width: 100%; }
+  .diagram-wrap svg { width: 100%; max-height: 92mm; height: auto; display: block; margin: 0 auto; }
+
+  svg text { font-family: 'DM Sans', sans-serif; }
+  .th { font-size: 11px; font-weight: 600; }
+  .ts { font-size: 9.4px; font-weight: 400; }
+
+  /* Footer (Inline with content so it never orphans onto a blank page) */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 7px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 8.8px;
+    color: var(--light);
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+  }
+  .footer .certs { display: flex; gap: 10px; }
+
+  @media print {
+    body { background: var(--white); padding: 0; margin: 0; }
+    .print-dock { display: none !important; }
+    .page {
+      width: 100%;
+      height: auto;
+      margin: 0;
+      box-shadow: none;
+      border-radius: 0;
+      page-break-after: always;
+      break-after: page;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .page:last-child {
+      page-break-after: auto;
+      break-after: auto;
+    }
+  }
+  @page { size: A4 portrait; margin: 8mm; }
+</style>
+</head>
+<body>
+
+<style>
+  .print-dock { display: none !important; }
+  body { -webkit-user-select: none; user-select: none; }
+  @media print { html, body { display: none !important; visibility: hidden !important; } }
+</style>
+<script>
+  window.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === 'p' || e.key.toLowerCase() === 's')) {
+      e.preventDefault(); e.stopPropagation(); return false;
+    }
+  }, true);
+  window.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+</script>
+<!-- =====================================================================
+     PAGE 1 - THE BUSINESS PROBLEM, SOLUTION & EXECUTIVE CONTROL TOWER
+     ===================================================================== -->
+<section class="page">
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        <span class="wordmark">fortifai</span>
+        <span class="pill">Continuous Value Assurance</span>
+      </div>
+      <div class="meta-right">
+              </div>
+    </div>
+    <h1>Continuous Value Assurance</h1>
+    <p>An agentic AI platform with domain-specialized agents delivering measurable outcomes like cost saving, margin enhancement and risk prevention. Built with Responsible AI as a core construct - 100% data residency, audit-grade evidence, no black-box code, and human-in-the-loop architecture.</p>
+  </div>
+
+  <div class="content">
+
+    <!-- Section 1: The Business Problem -->
+    <div>
+      <div class="sec-title">01 · The enterprise blind spot</div>
+      <div class="lead">
+        Much of the enterprise data (ERP, CRM, T&E, DMS or unstrictured) is never analysed. Traditional risk mitigation methods like audits remain periodic, manual and sample-based. This leaves a structural blind spot, where an estimated <strong>3% to 5% of revenue</strong> can leak out.
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <span class="card-tag">Example:Procurement &amp; Supply Chain Risk</span>
+          <h3>Un-Captured Commodity Price Drops &amp; Middleman Markups</h3>
+          <p>Suppliers push immediate price hikes when raw material indices rise, but keep contract prices flat when indices fall 10%–15%. Meanwhile, plants unknowingly buy components through zero-capacity traders at a 20%–30% markup instead of directly from the OEM.</p>
+        </div>
+        <div class="card">
+          <span class="card-tag">Example:Operational &amp; Control Bypass Risk</span>
+          <h3>Sub-Tolerance Overbilling &amp; Split Orders</h3>
+          <p>Vendors systematically bill above PO price (just beneath ERP tolerance block), buyers split requisitions to bypass competitive bidding and approval gates, or retroactive price increases are keyed after goods are received.</p>
+        </div>
+        <div class="card">
+          <span class="card-tag">Example:Finance &amp; Working Capital Risk</span>
+          <h3>Early Disbursements &amp; Period-Close Exceptions</h3>
+          <p>Invoices are paid weeks ahead of contractual due dates, creating working-capital drag, early-settlement discounts go uncaptured, and manual period-end journal entries create balance-sheet close bottlenecks.</p>
+        </div>
+        <div class="card">
+          <span class="card-tag">Example:Sales, Trade &amp; Third-Party Risk</span>
+          <h3>Revenue Leakage, Channel Stuffing &amp; Compliance Exposure</h3>
+          <p>Quarter-end sales spikes reverse via post-period credit memos, unapproved discounts erode gross margin, customer credit limits are breached, and post-clearance trade or third-party integrity risks go undetected.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: How fortifai works -->
+    <div>
+      <div class="sec-title">02 · How fortifai works: turning passive data into actionalble intelligence</div>
+      <div class="grid-3">
+        <div class="card soft-blue">
+          <span class="card-tag">1 · Commercial &amp; Risk Truth</span>
+          <h3>Data Normalisation</h3>
+          <p>Strips out routine operational noise (intercompany transfers, tax and utility runs) and normalises every price across payment credit terms, freight incoterms and units of measure, suppressing false positives before review.</p>
+        </div>
+        <div class="card soft-teal">
+          <span class="card-tag">2 · Outside-In Triangulation</span>
+          <h3>Market &amp; Registry Intelligence</h3>
+          <p>Fuses your internal ERP ledger with live commodity indices (Steel, Copper, Polymers, Fuel) and official supplier registries (verified factory workforce, tax filings, corporate ownership, and litigation records).</p>
+        </div>
+        <div class="card soft-purp">
+          <span class="card-tag">3 · Execution-Ready Output</span>
+          <h3>Pre-Drafted Action &amp; Recovery Packs</h3>
+          <p>Groups findings into deduplicated Opportunity &amp; Risk Packets, checks open unpaid payables for immediate cash set-off, and pre-drafts supplier renegotiation or debit memos for 1-click approval.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: The Enterprise Risk & Margin Control Tower -->
+    <div>
+      <div class="sec-title">03 · The executive cockpit: the Enterprise Risk Control Tower (SARA)</div>
+      <div class="tower-box">
+        <div class="tower-top">
+          <h3>fortifai SARA · cross-functional executive control tower</h3>
+          <span>Single CxO brief · CFO · CPO · CAE · CRO · General Counsel</span>
+        </div>
+        <p style="font-size: 9.8px; color: #CBD5E1; margin-bottom: 7px;">
+          All domain agents feed into <strong>fortifai SARA</strong>, giving executive leadership a real-time command centre across potential cash opportunity, P&amp;L exposure and regulatory posture. Start with a single functional agent, or activate the full suite under one unified tower. Figures below are illustrative of a representative mid-size manufacturing baseline, not a guaranteed outcome:
+        </p>
+        <div class="tower-kpis">
+          <div class="t-kpi">
+            <div class="lbl">Potential cash opportunity</div>
+            <div class="val">3-5% <span style="font-size:9.5px;color:#6EE7B7;">of spend</span></div>
+            <div class="sub">Surfaced across P2P, O2C &amp; finance</div>
+          </div>
+          <div class="t-kpi">
+            <div class="lbl">Procurement margin, illustrative</div>
+            <div class="val">2-3% <span style="font-size:9.5px;color:#6EE7B7;">net EBITDA</span></div>
+            <div class="sub">Deduplicated, potential impact</div>
+          </div>
+          <div class="t-kpi">
+            <div class="lbl">O2C revenue &amp; credit risk</div>
+            <div class="val">1.5-3% <span style="font-size:9.5px;color:#6EE7B7;">margin</span></div>
+            <div class="sub">Potential protection · lower DSO</div>
+          </div>
+          <div class="t-kpi">
+            <div class="lbl">Continuous control coverage</div>
+            <div class="val">100% <span style="font-size:9.5px;color:#93C5FD;">Txns</span></div>
+            <div class="sub">179 P2P, O2C &amp; SOX rules active</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  </div>
+</section>
+
+<!-- =====================================================================
+     PAGE 2 - THE DOMAIN AI AGENT SUITE
+     ===================================================================== -->
+<section class="page">
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        <span class="wordmark">fortifai</span>
+        <span class="pill">Domain AI Agent Suite</span>
+      </div>
+      <div class="meta-right">
+              </div>
+    </div>
+    <h1>Purpose-built AI agents for every business function</h1>
+    <p>Each agent provides a dedicated functional workbench, role-specific KPIs, and pre-drafted action packs on top of the shared fortifai foundation.</p>
+  </div>
+
+  <div class="content">
+
+    <div>
+      <div class="sec-title">04 · Domain-Specialised AI Agents Across Four Enterprise Functions</div>
+
+      <div class="grid-2">
+
+        <!-- 1. Procurement & Supply Chain -->
+        <div class="suite-card">
+          <div class="suite-head p2p">
+            <h3>1 · Procurement &amp; Supply Chain</h3>
+            <span class="suite-owner">For Chief Procurement Officer, Sourcing &amp; Category CoEs</span>
+          </div>
+          <div class="suite-body">
+            <div class="agent-row">
+              <div class="agent-title">
+                <span class="agent-badge">Kuber</span>
+                <span class="agent-sub">Procurement Cost &amp; Margin Optimisation</span>
+              </div>
+              <p class="agent-desc">Tracks 12 executive procurement KPIs; surfaces un-passed commodity drops, flags middleman markups against direct-to-OEM pricing, highlights fragmented vendor spend for consolidation, and identifies single-quote POs for competitive bidding across 30/60/90-day waves.</p>
+            </div>
+            <div class="agent-row">
+              <div class="agent-title">
+                <span class="agent-badge">AEWAC &amp; Conduit</span>
+                <span class="agent-sub">P2P leakage &amp; pass-through risk</span>
+              </div>
+              <p class="agent-desc">Flags duplicate invoices, 3-way match bypasses, split POs, and pass-through intermediary vendors ahead of payment runs, for review before cash clears.</p>
+            </div>
+          </div>
+          <div class="suite-outcome">
+            <strong>Illustrative potential:</strong> 3-5% of addressable spend surfaced, of which a deduplicated portion typically maps to net EBITDA.
+          </div>
+        </div>
+
+        <!-- 2. Finance & Working Capital -->
+        <div class="suite-card">
+          <div class="suite-head fin">
+            <h3>2 · Finance &amp; Working Capital</h3>
+            <span class="suite-owner">For Chief Financial Officer, Controller &amp; Shared Services</span>
+          </div>
+          <div class="suite-body">
+            <div class="agent-row">
+              <div class="agent-title">
+                <span class="agent-badge">Crystal</span>
+                <span class="agent-sub">Balance Sheet Close &amp; Reconciliation Risk</span>
+              </div>
+              <p class="agent-desc">Triages period-end close risk, auto-clearing routine low-risk accounts for review while isolating high-risk top-side manual journal entries, aged open items, and intercompany breaks.</p>
+            </div>
+            <div class="agent-row">
+              <div class="agent-title">
+                <span class="agent-badge">Moneta</span>
+                <span class="agent-sub">Working capital &amp; cash-flow leakage</span>
+              </div>
+              <p class="agent-desc">Flags early supplier disbursements paid ahead of contractual due dates, surfaces missed early-settlement cash discounts, and highlights payment-term breaches across AP, for action before the next run.</p>
+            </div>
+          </div>
+          <div class="suite-outcome">
+            <strong>Illustrative potential:</strong> materially fewer manual close review hours, and working capital protected by tightening early-payment and discount discipline.
+          </div>
+        </div>
+
+        <!-- 3. Sales & Revenue Assurance -->
+        <div class="suite-card">
+          <div class="suite-head o2c">
+            <h3>3 · Sales &amp; Revenue Assurance (O2C)</h3>
+            <span class="suite-owner">For Commercial Finance, Sales Operations &amp; Chief Revenue Officer</span>
+          </div>
+          <div class="suite-body">
+            <div class="agent-row">
+              <div class="agent-title">
+                <span class="agent-badge">Surge</span>
+                <span class="agent-sub">Channel Stuffing &amp; Revenue Integrity</span>
+              </div>
+              <p class="agent-desc">Detects quarter-end volume spikes, post-period return and credit-memo washes, unbilled deliveries, and unauthorised price or payment-term concessions across sales territories.</p>
+            </div>
+            <div class="agent-row">
+              <div class="agent-title">
+                <span class="agent-badge">Horizon</span>
+                <span class="agent-sub">Risk-Adjusted Revenue Predictability</span>
+              </div>
+              <p class="agent-desc">Removes artificial channel-stuffing and credit-wash distortions from historical order books and correlates backlog with external demand indices to support cleaner, more realisable revenue forecasts.</p>
+            </div>
+          </div>
+          <div class="suite-outcome">
+            <strong>Illustrative potential:</strong> 1.5-3% of gross margin protected, support for ASC 606 / IFRS 15 revenue recognition, and lower DSO.
+          </div>
+        </div>
+
+        <!-- 4. Internal Audit, Risk & Compliance -->
+        <div class="suite-card">
+          <div class="suite-head aud">
+            <h3>4 · Internal Audit, Risk &amp; Compliance</h3>
+            <span class="suite-owner">For Chief Audit Executive, Chief Risk Officer &amp; General Counsel</span>
+          </div>
+          <div class="suite-body">
+            <div class="agent-row">
+              <div class="agent-title">
+                <span class="agent-badge">Argus</span>
+                <span class="agent-sub">AI-Powered Internal Investigation Agent</span>
+              </div>
+              <p class="agent-desc">Turns whistle-blower complaints or anomaly leads into investigation-grade forensic dossiers, correlating ERP ledgers, emails and physical documents with adversarial review.</p>
+            </div>
+            <div class="agent-row">
+              <div class="agent-title">
+                <span class="agent-badge">Aegis &amp; Veritas</span>
+                <span class="agent-sub">Trade compliance &amp; anti-bribery</span>
+              </div>
+              <p class="agent-desc">Monitors post-clearance export diversion on controlled goods (<em>Aegis</em>) and third-party FCPA and bribery conduit risk (<em>Veritas</em>), screening counterparties against external due-diligence intelligence.</p>
+            </div>
+          </div>
+          <div class="suite-outcome">
+            <strong>Illustrative potential:</strong> continuous testing across all transactions, materially faster investigations, and audit-ready evidence packs.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Section 5: Conversational Copilot -->
+    <div>
+      <div class="sec-title">05 · Built-in conversational AI: enterprise-level -  "QuantumQuery" &amp; function level -  "Ask Agent"</div>
+      <div class="copilot-strip">
+        <div>
+          <h4>Ask questions in plain English, get verified database answers in seconds</h4>
+          <p>Every workbench includes a context-aware AI assistant. Fortifai translates your question into a safe, read-only database query with full lineage, so every number is computed deterministically by the database, not generated by the model.</p>
+        </div>
+        <div class="query-pill">
+          "Which vendors have unpaid invoices ready for immediate set-off?"
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <span>  </div>
+</section>
+
+<!-- =====================================================================
+     PAGE 3 - BUSINESS BENEFITS, ARCHITECTURE & ONBOARDING
+     ===================================================================== -->
+<section class="page">
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        <span class="wordmark">fortifai</span>
+        <span class="pill">Platform &amp; Deployment</span>
+      </div>
+      <div class="meta-right">
+        100% read-only · zero egress · live in 4 to 6 weeks
+      </div>
+    </div>
+    <h1>Deterministic accuracy, zero ERP disruption and full data privacy</h1>
+    <p>Engineered for rapid enterprise adoption, with every figure computed deterministically and the entire platform deployed inside your network boundary.</p>
+  </div>
+
+  <div class="content">
+
+    <!-- Section 6: Quantified Business Benefits -->
+    <div>
+      <div class="sec-title">06 · Why enterprise leaders choose fortifai</div>
+      <div class="grid-4" style="margin-bottom: 7px;">
+        <div class="stat-card">
+          <div class="stat-val">3-5%</div>
+          <div class="stat-lbl">Potential spend &amp; margin opportunity</div>
+          <div class="stat-sub">Illustrative, across P2P, O2C &amp; finance</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">2-3%</div>
+          <div class="stat-lbl">Potential net EBITDA</div>
+          <div class="stat-sub">Illustrative, deduplicated impact</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">100%</div>
+          <div class="stat-lbl">Deterministic figures</div>
+          <div class="stat-sub">No model-computed numbers</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val">4-6 wks</div>
+          <div class="stat-lbl">Rapid time-to-value</div>
+          <div class="stat-sub">No custom ERP coding</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>1. Deterministic figures and no double-counting</h3>
+          <p>The language model never calculates a financial exposure. All figures are computed deterministically in the database, and an economic precedence waterfall ensures two levers never claim the same value on a transaction.</p>
+        </div>
+        <div class="card">
+          <h3>2. Human-in-the-loop governance: signals, not verdicts</h3>
+          <p>fortifai never automatically blocks a vendor or mutates your production ERP, and it does not conclude control outcomes. Business owners review triangulated evidence and approve every action under two-person Maker-Checker sign-off; the client and its auditors own all conclusions.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 7: High-Level Architecture Diagram -->
+    <div>
+      <div class="sec-title">07 · High-level platform architecture (inside your network / private cloud VPC)</div>
+      <div class="diagram-wrap">
+        <svg viewBox="0 0 680 360" role="img" aria-label="High-level 4-tier business architecture inside client VPC">
+          <defs>
+            <marker id="arrB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="var(--light)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </marker>
+          </defs>
+
+          <!-- Outer Governance Envelope -->
+          <rect x="14" y="6" width="652" height="348" rx="12" fill="none" stroke="var(--navy-2)" stroke-width="0.8" stroke-dasharray="4 4"/>
+          <text class="th" x="32" y="23" fill="var(--navy-2)">Client Security Perimeter (On-Premise or AWS / Azure / GCP Private VPC)</text>
+          <text class="ts" x="32" y="36" fill="var(--light)">100% Read-Only ERP Access · Zero Outbound Data Egress · SAML/OIDC SSO · AES-256 &amp; TLS 1.3 · ISO 27001 &amp; SOC 2 Type II</text>
+
+          <!-- Band 1: Executive Control Tower -->
+          <rect x="34" y="46" width="612" height="46" rx="7" fill="var(--blue-f)" stroke="var(--blue-s)" stroke-width="1"/>
+          <text class="th" x="340" y="62" text-anchor="middle" dominant-baseline="central" fill="var(--blue-t)">Enterprise Risk Control Tower (SARA) → CFO · CPO · CAE · CRO · General Counsel</text>
+          <text class="ts" x="340" y="78" text-anchor="middle" dominant-baseline="central" fill="var(--blue-s)">Orchestrates cross-functional value, P&amp;L exposure and regulatory posture · enterprise QuantumQuery copilot</text>
+
+          <line x1="340" y1="108" x2="340" y2="92" stroke="var(--light)" stroke-width="1.4" marker-end="url(#arrB)"/>
+
+          <!-- Band 2: Domain AI Agents -->
+          <g>
+            <rect x="34" y="110" width="146" height="46" rx="6" fill="var(--teal-f)" stroke="var(--teal-s)" stroke-width="0.7"/>
+            <text class="th" x="107" y="126" text-anchor="middle" dominant-baseline="central" fill="var(--teal-t)">Procurement Agents</text>
+            <text class="ts" x="107" y="142" text-anchor="middle" dominant-baseline="central" fill="var(--teal-s)">Kuber · AEWAC · Conduit</text>
+          </g>
+          <g>
+            <rect x="190" y="110" width="146" height="46" rx="6" fill="var(--teal-f)" stroke="var(--teal-s)" stroke-width="0.7"/>
+            <text class="th" x="263" y="126" text-anchor="middle" dominant-baseline="central" fill="var(--teal-t)">Finance Agents</text>
+            <text class="ts" x="263" y="142" text-anchor="middle" dominant-baseline="central" fill="var(--teal-s)">Crystal · Moneta</text>
+          </g>
+          <g>
+            <rect x="346" y="110" width="146" height="46" rx="6" fill="var(--teal-f)" stroke="var(--teal-s)" stroke-width="0.7"/>
+            <text class="th" x="419" y="126" text-anchor="middle" dominant-baseline="central" fill="var(--teal-t)">Sales / O2C Agents</text>
+            <text class="ts" x="419" y="142" text-anchor="middle" dominant-baseline="central" fill="var(--teal-s)">Surge · Horizon</text>
+          </g>
+          <g>
+            <rect x="502" y="110" width="144" height="46" rx="6" fill="var(--teal-f)" stroke="var(--teal-s)" stroke-width="0.7"/>
+            <text class="th" x="574" y="126" text-anchor="middle" dominant-baseline="central" fill="var(--teal-t)">Audit &amp; Compliance</text>
+            <text class="ts" x="574" y="142" text-anchor="middle" dominant-baseline="central" fill="var(--teal-s)">Argus · Aegis · Veritas</text>
+          </g>
+
+          <line x1="340" y1="172" x2="340" y2="156" stroke="var(--light)" stroke-width="1.4" marker-end="url(#arrB)"/>
+
+          <!-- Band 3: Shared Intelligence & Data Spine -->
+          <rect x="34" y="174" width="612" height="48" rx="7" fill="var(--purp-f)" stroke="var(--purp-s)" stroke-width="0.7"/>
+          <text class="th" x="340" y="191" text-anchor="middle" dominant-baseline="central" fill="var(--purp-t)">fortifai detection engine &amp; canonical database spine (PostgreSQL + pgvector)</text>
+          <text class="ts" x="340" y="207" text-anchor="middle" dominant-baseline="central" fill="var(--purp-s)">Reliability audit · canonical normalisation (TRAE) · 179 rules &amp; statistical models · private in-boundary LLM</text>
+
+          <line x1="340" y1="238" x2="340" y2="222" stroke="var(--light)" stroke-width="1.4" marker-end="url(#arrB)"/>
+
+          <!-- Band 4: Enterprise & External Sources -->
+          <g>
+            <rect x="34" y="240" width="196" height="44" rx="6" fill="var(--gray-f)" stroke="var(--gray-s)" stroke-width="0.6"/>
+            <text class="th" x="132" y="255" text-anchor="middle" dominant-baseline="central" fill="var(--gray-t)">Core Enterprise ERPs</text>
+            <text class="ts" x="132" y="270" text-anchor="middle" dominant-baseline="central" fill="var(--gray-s)">SAP S/4HANA &amp; ECC · Oracle · Dynamics</text>
+          </g>
+          <g>
+            <rect x="242" y="240" width="196" height="44" rx="6" fill="var(--gray-f)" stroke="var(--gray-s)" stroke-width="0.6"/>
+            <text class="th" x="340" y="255" text-anchor="middle" dominant-baseline="central" fill="var(--gray-t)">Operational &amp; Spend Systems</text>
+            <text class="ts" x="340" y="270" text-anchor="middle" dominant-baseline="central" fill="var(--gray-s)">Ariba · Coupa · Concur · DMS · TMS</text>
+          </g>
+          <g>
+            <rect x="450" y="240" width="196" height="44" rx="6" fill="var(--amb-f)" stroke="var(--amb-s)" stroke-width="0.6"/>
+            <text class="th" x="548" y="255" text-anchor="middle" dominant-baseline="central" fill="var(--amb-t)">External Market &amp; Registry Feeds</text>
+            <text class="ts" x="548" y="270" text-anchor="middle" dominant-baseline="central" fill="var(--amb-s)">Commodity Indices (LME/ICIS) &amp; D7 Registry</text>
+          </g>
+
+          <!-- Bottom Summary Strip inside Perimeter -->
+          <rect x="34" y="296" width="612" height="42" rx="6" fill="var(--cor-f)" stroke="var(--cor-s)" stroke-width="0.6"/>
+          <text class="th" x="340" y="311" text-anchor="middle" dominant-baseline="central" fill="var(--cor-t)">Flexible deployment: start with one functional agent or deploy the full suite</text>
+          <text class="ts" x="340" y="326" text-anchor="middle" dominant-baseline="central" fill="var(--cor-s)">Connect your ERP once; switch on additional domain agents anytime with no rework to your data or security foundation.</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Section 8: 4-Week Onboarding -->
+    <div>
+      <div class="sec-title">08 · Low-Friction Onboarding: From Kick-Off to Executive Value in 4 Weeks</div>
+      <div class="timeline">
+        <div class="step-box">
+          <div class="step-wk">Week 1 · Connect</div>
+          <h4>Read-Only Ingestion</h4>
+          <p>Provision read-only ERP access in your VPC and run the automated Data Reliability Audit.</p>
+        </div>
+        <div class="step-box">
+          <div class="step-wk">Week 2 · Triangulate</div>
+          <h4>Baseline &amp; Market Link</h4>
+          <p>Normalise historical transactions and attach commodity indices and counterparty registries.</p>
+        </div>
+        <div class="step-box">
+          <div class="step-wk">Week 3 · Calibrate</div>
+          <h4>Business Policy Tuning</h4>
+          <p>Validate thresholds, exclusions, and approval workflows with your functional leads.</p>
+        </div>
+        <div class="step-box">
+          <div class="step-wk">Week 4 · Execute</div>
+          <h4>Go-Live &amp; Action Plan</h4>
+          <p>Launch live workbenches with a prioritised 30/60/90-day savings and risk-mitigation roadmap.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
