@@ -492,6 +492,28 @@
   }, true);
   window.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 </script>
+<!-- Subtle Diagonal Confidential Watermark -->
+<style>
+  .page {
+    position: relative;
+  }
+  .page::after {
+    content: "CONFIDENTIAL";
+    position: absolute;
+    top: 52%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-32deg);
+    font-family: 'DM Mono', monospace;
+    font-size: 70px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: rgba(220, 38, 38, 0.10); /* 4.5% opacity — visible in screenshots, zero impact on reading */
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+    z-index: 50;
+  }
+</style>
 <!-- =====================================================================
      PAGE 1 - THE BUSINESS PROBLEM, SOLUTION & EXECUTIVE CONTROL TOWER
      ===================================================================== -->
